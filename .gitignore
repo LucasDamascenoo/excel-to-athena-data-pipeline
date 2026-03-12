@@ -1,0 +1,15 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Terraform lock
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.pyc
+
+# Data files (opcional)
+data/*.csv
