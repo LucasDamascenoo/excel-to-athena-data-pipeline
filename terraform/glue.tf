@@ -9,6 +9,11 @@ resource "aws_glue_catalog_database" "datalake_db" {
     name = "datalake_raw"  
 }
 
+resource "aws_glue_catalog_database" "silver_db" {
+  name = "datalake_silver"
+  
+}
+
 # crawler : responsavel por ler arquivos no s3 (detecta os schema automaticamente) e cria tabelas no glue catalog
 #raw_crawler == nome interno no terraform
 # name == nome real do crawler dentro da aws
@@ -29,6 +34,15 @@ resource "aws_glue_crawler" "raw_crawler" {
   
 }
 
+resource "aws_glue_crawler" "silver_crawler" {
+  name = "silver_crawler"
+  database_name = aws_glue_catalog_database.silver_db.name
+  role = aws_iam_role.glue_role.arn
+  s3_target {
+    path = "s3://lucas-datalake-excel-project/silver/"
+  }
+}
+
 # cria um job que processa dados em spark/pysaprk e pandas
 #excel-etl = nome interno do terraform
 #name == nome real do job na AWS
@@ -44,9 +58,11 @@ resource "aws_glue_job" "excel_etl" {
     role_arn = aws_iam_role.glue_role.arn
 
     command {
-      script_location = "s3://lucas-datalake-excel-project/scripts/excel_to_parquet.py"
+      script_location = "s3://lucas-datalake-excel-project/etl/excel_to_parquet.py"
       python_version = "3"
     }
   
 }
+
+
 
